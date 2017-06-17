@@ -8,7 +8,7 @@ module TestBench;
 
 	Simple_Single_CPU cpu(
 					.clk_i(CLK),
-					.start_i(START)
+					.rst_i(START)
 					);
 
 initial	begin
@@ -31,14 +31,14 @@ always #(`CYCLE_TIME/2)	CLK	=	~CLK;
 
 always@(posedge	CLK) begin
 
- if(cpu.IM.instr_o !=	32'd0)
-	$fdisplay(handle1, "%h\n", cpu.IM.addr_i);
- else;
+ 	if(cpu.IM.instr_o !=	32'd0)
+		$fdisplay(handle1, "%h\n", cpu.IM.addr_i);
+ 	else;
 
- if(cpu.DM.MemWrite_i	|| cpu.DM.MemRead_i)
-	$fdisplay(handle2, "%h\n", cpu.DM.addr_i);
- else;
+ 	if(cpu.Data_Memory.MemWrite_i	|| cpu.Data_Memory.MemRead_i)
+		$fdisplay(handle2, "%h\n", cpu.Data_Memory.addr_i);
+ 	else;
 
- end
+end
 
 endmodule

@@ -14,7 +14,7 @@
 `include "Data_Memory.v"
 
 module Simple_Single_CPU(
-        clk_i,
+		clk_i,
 		rst_i
 		);
 /*
@@ -52,7 +52,7 @@ except some other good names
 
     wire jump, mem_read, mem_write;
     wire [1:0] mem_to_reg, branch_type;
-
+    wire [32-1:0]PC_to_NPC;
 
     //Greate componentes
     ProgramCounter PC(
@@ -167,7 +167,7 @@ except some other good names
             .data_o (PC_to_NPC)
             );
 
-    wire [32-1:0]PC_to_NPC;
+
 
     MUX_2to1 #(.size(32)) Mux_NPC_Source(
             .data0_i(PC_to_NPC),

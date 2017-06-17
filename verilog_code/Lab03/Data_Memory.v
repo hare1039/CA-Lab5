@@ -1,23 +1,5 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    17:31:32 02/25/2016
-// Design Name: 
-// Module Name:    Data_Memory 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
-//////////////////////////////////////////////////////////////////////////////////
+`ifndef DATA_MEMORY_V
+`define DATA_MEMORY_V
 module Data_Memory
 (
 	clk_i,
@@ -93,7 +75,7 @@ initial begin
 	Mem[36] = 8'b0011;
 	for(i=0; i<128; i=i+1)
 		Mem[i] = 8'b0;
-end 
+end
 
 always@(posedge clk_i) begin
     if(MemWrite_i) begin
@@ -111,3 +93,4 @@ end
 
 endmodule
 
+`endif // DATA_MEMORY_V

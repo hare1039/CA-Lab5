@@ -1,3 +1,5 @@
+`ifndef DECODER_V
+`define DECODER_V
 module Decoder(
     instr_op_i,
   	RegWrite_o,
@@ -165,7 +167,7 @@ module Decoder(
             MemWrite_o  = 0;
         end
 		  else if(instr_op_i == 6'b000101)begin    //bne -> make by hand
-            ALU_op_o    = 3'b101;           
+            ALU_op_o    = 3'b101;
             ALUSrc_o    = 0;
             RegWrite_o  = 0;
             RegDst_o    = 2'b00;
@@ -195,7 +197,7 @@ module Decoder(
             RegDst_o    = 2'b10;              //reg -> 31
             Branch_o    = 0;
             Jump_o      = 0;
-            MemToReg_o  = 2'b11;              //Ÿäå­˜reg[31] = PC+4
+            MemToReg_o  = 2'b11;              //ï¿½ï¿½å­˜reg[31] = PC+4
             BranchType_o= 2'b00;
             MemRead_o   = 0;
             MemWrite_o  = 0;
@@ -221,3 +223,6 @@ module Decoder(
         end
     end
 endmodule
+
+
+`endif // DECODER_V

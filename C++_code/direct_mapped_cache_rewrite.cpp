@@ -65,8 +65,24 @@ int main(int argc, char *argv[])
 {
     std::cout << ((argc < 2)? "read from stdin\n": "read from " + std::string(argv[1]) + "\n");
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(4_KB, 16_B, std::cin): [&]{ std::ifstream i(argv[1]); return
-		              calculate_rate(4_KB, 16_B, i);}());
+    std::cout << ((argc < 2)? calculate_rate(16_KB, 16_B, std::cin): [&]{ std::ifstream i(argv[1]); return
+		              calculate_rate(16_KB, 16_B, i);}());
+    std::cout << "\n";
+    std::cout << "miss rate: ";
+    std::cout << ((argc < 2)? calculate_rate(16_KB, 32_B, std::cin): [&]{ std::ifstream i(argv[1]); return
+		              calculate_rate(16_KB, 32_B, i);}());
+    std::cout << "\n";
+    std::cout << "miss rate: ";
+    std::cout << ((argc < 2)? calculate_rate(16_KB, 64_B, std::cin): [&]{ std::ifstream i(argv[1]); return
+		              calculate_rate(16_KB, 64_B, i);}());
+    std::cout << "\n";
+    std::cout << "miss rate: ";
+    std::cout << ((argc < 2)? calculate_rate(16_KB, 128_B, std::cin): [&]{ std::ifstream i(argv[1]); return
+		              calculate_rate(16_KB, 128_B, i);}());
+    std::cout << "\n";
+    std::cout << "miss rate: ";
+    std::cout << ((argc < 2)? calculate_rate(16_KB, 256_B, std::cin): [&]{ std::ifstream i(argv[1]); return
+		              calculate_rate(16_KB, 256_B, i);}());
     std::cout << "\n";
     return 0;
 }

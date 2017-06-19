@@ -18,7 +18,7 @@ double log2( double n )
 }
 
 
-void simulate(int cache_size, int block_size)
+double simulate(int cache_size, int block_size)
 {
     unsigned int tag, index, x;
     
@@ -32,11 +32,11 @@ void simulate(int cache_size, int block_size)
     for(int j = 0; j < line; j++)
     	cache[j].v = false;
     
-    FILE * fp = fopen("../verilog_code/Lab03/ICACHE.txt", "r");		//read file using c styled
-    
+    FILE * fp = fopen("../verilog_code/Lab03/DCACHE.txt", "r");		//read file using c styled
+    int total(0), miss(0);
     while(fscanf(fp,"%x",&x)!=EOF)
     {
-    	std::cout << std::hex << x << " ";
+//    	std::cout << std::hex << x << " ";
     	index = (x >> offset_bit) & (line-1);
     	tag   =  x >> (index_bit + offset_bit);
     	if(cache[index].v && cache[index].tag==tag)
@@ -47,15 +47,24 @@ void simulate(int cache_size, int block_size)
 	{						
 	    cache[index].v   = true;			//miss
 	    cache[index].tag = tag;
+	    miss++;
     	}
+
+	total++;
     }
     fclose(fp);
     
     delete [] cache;
+    return static_cast<double>(miss)/total;
 }
 	
 int main()
 {
 	// Let us simulate 4KB cache with 16B blocks
-    simulate(4*K, 16);
+    std::cout << "miss: " << simulate(256*K, 16) << "\n";
+    std::cout << "miss: " << simulate(256*K, 32) << "\n";
+    std::cout << "miss: " << simulate(256*K, 64) << "\n";
+    std::cout << "miss: " << simulate(256*K, 128) << "\n";
+    std::cout << "miss: " << simulate(256*K, 256) << "\n";
+		    
 }

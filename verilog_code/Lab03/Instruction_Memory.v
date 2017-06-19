@@ -1,8 +1,26 @@
-`ifndef INSTRUCTION_MEMORY_V
-`define INSTRUCTION_MEMORY_V
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:     
+// Design Name: 
+// Module Name:    Instruction_Memory 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 
+// Additional Comments: 
+//
+//////////////////////////////////////////////////////////////////////////////////
 module Instruction_Memory
 (
-	addr_i,
+	addr_i, 
 	instr_o
 );
 
@@ -18,12 +36,10 @@ initial begin
 
     for ( i=0; i<65; i=i+1 )
             instruction_file[i] = 32'b0;
-
-    $readmemb("lab5_test_data.txt", instruction_file);  //Read instruction from "lab5_test_data.txt"
+        
+    $readmemb("lab5_test_data.txt", instruction_file);  //Read instruction from "lab5_test_data.txt"   
 end
 
-assign	instr_o = instruction_file[addr_i/4];
+assign	instr_o = instruction_file[addr_i/4];  
 
 endmodule
-
-`endif // INSTRUCTION_MEMORY_V

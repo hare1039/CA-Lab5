@@ -6,7 +6,7 @@
 `include "Adder.v"
 `include "ALU_Ctrl.v"
 `include "ALU.v"
-`include "Instr_Memory.v"
+`include "Instruction_Memory.v"
 `include "MUX_2to1.v"
 `include "Reg_File.v"
 `include "Shift_Left_Two_32.v"
@@ -69,7 +69,7 @@ except some other good names
     	    .sum_o (adder1)
     	    );
 
-    Instr_Memory IM(
+    Instruction_Memory IM(
             .addr_i(pc),
     	    .instr_o  (instruction)
     	    );

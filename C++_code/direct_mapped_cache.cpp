@@ -32,7 +32,7 @@ void simulate(int cache_size, int block_size)
     for(int j = 0; j < line; j++)
     	cache[j].v = false;
     
-    FILE * fp = fopen("test.txt","r");					//read file using c styled
+    FILE * fp = fopen("../verilog_code/Lab03/ICACHE.txt", "r");		//read file using c styled
     
     while(fscanf(fp,"%x",&x)!=EOF)
     {

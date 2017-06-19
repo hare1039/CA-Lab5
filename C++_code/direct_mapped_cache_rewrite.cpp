@@ -7,13 +7,14 @@
 #include <cstdint>
 
 #define UNTIL(x) while(!(x))
+#define INT_MAX 2147483647
 
 struct Cache
 {
     std::vector<std::vector<int> > data;
     std::vector<std::vector<int> > least_used;
-    Cache(int size, int block_size, int way): data      (2000, std::vector<int>(way, -1)),
-    least_used(2000, std::vector<int>(2000, INT_MAX)){}
+    Cache(int size, int block_size, int way): data      (size, std::vector<int>(way, -1)),
+    least_used(size, std::vector<int>(size, INT_MAX)){}
     
     bool exist(int index, int pos)
     {
@@ -34,6 +35,7 @@ struct Cache
             pos++;
         }
         data[index][small_pos] = tag;
+	reset_timer(index, small_pos);
         return *this;
     }
     
@@ -42,12 +44,17 @@ struct Cache
         for(std::vector<int> & v : least_used)
             for(int& i : v)
                 i--;
-        return *this;
+         return *this;
     }
     
     int& index_at(int index, int pos)
     {
         return data.at(index).at(pos);
+    }
+
+    void reset_timer(int index, int pos)
+    {
+        least_used.at(index).at(pos) = INT_MAX;
     }
 };
 
@@ -59,8 +66,8 @@ ulli operator"" _way(ulli x) { return x; }
 double calculate_rate(int cache_size, int block_size, int way, std::istream &input)
 {
     std::function<double(double)> log2 = [](double n){return std::log(n) / std::log(2);};
-    int offset_bit = static_cast<int>(log2(block_size * way));
-    int index_bit  = static_cast<int>(log2(cache_size/block_size));
+    int offset_bit = static_cast<int>(log2(block_size));
+    int index_bit  = static_cast<int>(log2(cache_size/block_size/way));
     int line       = cache_size >> (offset_bit);
     
     Cache cache(line, block_size, way);
@@ -80,6 +87,7 @@ double calculate_rate(int cache_size, int block_size, int way, std::istream &inp
             {
                 // hit
                 hited = true;
+		cache.reset_timer(index, pos);
                 break;
             }
             pos++;
@@ -95,6 +103,7 @@ double calculate_rate(int cache_size, int block_size, int way, std::istream &inp
             else
             {
                 cache.add(index, tag);
+		
                 miss_time++;
             }
         }
@@ -110,32 +119,32 @@ int main(int argc, char *argv[])
 {
     std::cout << ((argc < 2)? "read from stdin\n": "read from " + std::string(argv[1]) + "\n");
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(1_KB, 64_B, 2_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(1_KB, 64_B, 2_way, i);}());
+    std::cout << ((argc < 2)? calculate_rate(1_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
+        calculate_rate(1_KB, 64_B, 1_way, i);}());
     std::cout << "\n";
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(2_KB, 64_B, 2_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(2_KB, 64_B, 2_way, i);}());
+    std::cout << ((argc < 2)? calculate_rate(2_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
+        calculate_rate(2_KB, 64_B, 1_way, i);}());
     std::cout << "\n";
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(4_KB, 64_B, 2_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(4_KB, 64_B, 2_way, i);}());
+    std::cout << ((argc < 2)? calculate_rate(4_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
+        calculate_rate(4_KB, 64_B, 1_way, i);}());
     std::cout << "\n";
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(8_KB, 64_B, 2_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(8_KB, 64_B, 2_way, i);}());
+    std::cout << ((argc < 2)? calculate_rate(8_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
+        calculate_rate(8_KB, 64_B, 1_way, i);}());
     std::cout << "\n";
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(16_KB, 64_B, 2_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(16_KB, 64_B, 2_way, i);}());
+    std::cout << ((argc < 2)? calculate_rate(16_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
+        calculate_rate(16_KB, 64_B, 1_way, i);}());
     std::cout << "\n";
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(32_KB, 64_B, 2_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(32_KB, 64_B, 2_way, i);}());
+    std::cout << ((argc < 2)? calculate_rate(32_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
+        calculate_rate(32_KB, 64_B, 1_way, i);}());
     std::cout << "\n";
     std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(64_KB, 64_B, 2_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(64_KB, 64_B, 2_way, i);}());
+    std::cout << ((argc < 2)? calculate_rate(64_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
+        calculate_rate(64_KB, 64_B, 1_way, i);}());
     std::cout << "\n";
     return 0;
 }

@@ -1,10 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <vector>
 
 struct cache_content
 {
-    bool         v = false;
+    bool         valid = false;
     unsigned int tag;
     int          last_time;
 };
@@ -21,12 +22,8 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
     int index_bit  = static_cast<int>( log2(cache_size/block_size/way) );
     int line       = 1 << index_bit;
 
-    cache_content **cache = new cache_content*[line];
-    for(int i(0) ; i < line ; i++)
-    {
-        cache[i] = new cache_content[way];
-    }
-
+    std::vector<std::vector<cache_content> > cache(line, std::vector<cache_content>(way));
+    
     std::ifstream input(file_name);
     ulli addr, time_x(0), miss_time(0);
     while(input >> std::hex >> addr)
@@ -37,7 +34,7 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
         bool hit = false;
         for(int i(0); i < way; i++)
 	{
-            if( cache[index][i].v && cache[index][i].tag == tag )
+            if( cache[index][i].valid && cache[index][i].tag == tag )
 	    { // hit
                 hit = true;
                 cache[index][i].last_time = time_x;
@@ -52,10 +49,10 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
             int find_empty = false;
             for(int i(0); i < way; i++)
 	    {
-                if( cache[index][i].v == false )
+                if( cache[index][i].valid == false )
 		{
                     find_empty = true;
-                    cache[index][i].v         = true;
+                    cache[index][i].valid     = true;
                     cache[index][i].tag       = tag;
                     cache[index][i].last_time = time_x;
                     break;
@@ -70,11 +67,11 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
 		{
                     if(min_time > cache[index][i].last_time)
 		    {
-                        min_time = cache[index][i].last_time;
+                        min_time  = cache[index][i].last_time;
                         index_min = i;
                     }
                 }
-                cache[index][index_min].v         = true;
+                cache[index][index_min].valid     = true;
                 cache[index][index_min].tag       = tag;
                 cache[index][index_min].last_time = time_x;
             }
@@ -84,20 +81,13 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
     }
 
     std::cout << std::endl;
-    std::cout << "file_name:\t"     << file_name     << std::endl;
-    std::cout << "way:   \t"        << way           << std::endl;
+    std::cout << "way:       \t"    << way           << std::endl;
     std::cout << "cache_size:\t"    << cache_size    << std::endl;
     std::cout << "block_size:\t"    << block_size    << std::endl;
-    std::cout << "time_x:\t"        << time_x        << std::endl;
-    std::cout << "miss_time:\t"     << miss_time     << std::endl;
-    std::cout << "miss rate:\t"     << static_cast<double>(miss_time)/time_x << std::endl;
+    std::cout << "time_x:    \t"    << time_x        << std::endl;
+    std::cout << "miss_time: \t"    << miss_time     << std::endl;
+    std::cout << "miss rate: \t"    << static_cast<double>(miss_time)/time_x << std::endl;
     std::cout << std::endl;
-
-    for(int i(0); i < line; i++)
-    {
-        delete [] cache[i];
-    }
-    delete [] cache;
 }
 
 int main(int argc, char *argv[])

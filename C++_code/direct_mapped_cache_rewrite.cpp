@@ -4,10 +4,9 @@
 #include <functional>
 #include <cmath>
 #include <vector>
-#include <cstdint>
+#include <climits>
 
 #define UNTIL(x) while(!(x))
-#define INT_MAX 2147483647
 
 struct Cache
 {

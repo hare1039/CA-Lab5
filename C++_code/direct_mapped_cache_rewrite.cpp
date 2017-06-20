@@ -82,10 +82,6 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
 
     std::cout << std::endl;
     std::cout << "way:       \t"    << way           << std::endl;
-    std::cout << "cache_size:\t"    << cache_size    << std::endl;
-    std::cout << "block_size:\t"    << block_size    << std::endl;
-    std::cout << "time_x:    \t"    << time_x        << std::endl;
-    std::cout << "miss_time: \t"    << miss_time     << std::endl;
     std::cout << "miss rate: \t"    << static_cast<double>(miss_time)/time_x << std::endl;
     std::cout << std::endl;
 }

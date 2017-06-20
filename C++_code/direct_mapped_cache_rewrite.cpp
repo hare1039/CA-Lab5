@@ -50,14 +50,13 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
         tag   =  addr >> (index_bit + offset_bit);
         bool hit = false;
 	for(cache_cell &cell : cache.at(index))
-	{
             if( cell.valid && cell.tag == tag )
 	    { 
                 hit = true;
                 cell.set_last_time(time_x);
                 break;
             }
-        }
+        
 
         if(not hit)
 	{ 
@@ -65,7 +64,6 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
 	    
             int empty = false;
 	    for(cache_cell &cell : cache.at(index))
-	    {
                 if( not cell.valid )
 		{
                     empty = true;
@@ -74,23 +72,22 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
 			.set_last_time(time_x);
                     break;
                 }
-            }
+            
             if( not empty )
 	    {
                 int min_time  = INT_MAX;
                 int index_min = -1;
 
 	        for(int i(0); i < way; i++)
-		{
-                    if(min_time > cache[index][i].last_time)
+                    if(min_time > cache.at(index).at(i).last_time)
 		    {
-                        min_time  = cache[index][i].last_time;
+                        min_time  = cache.at(index).at(i).last_time;
                         index_min = i;
                     }
-                }
-               cache[index][index_min].set_valid(true)
-                                      .set_tag(tag)
-                                      .set_last_time(time_x);
+                
+		cache.at(index).at(index_min).set_valid(true)
+                                             .set_tag(tag)
+                                             .set_last_time(time_x);
             }
 
         }
@@ -107,14 +104,8 @@ int main(int argc, char *argv[])
 {
     int block_size = 64_B;
     
-    for(int ways(1_way); ways < 16; ways <<= 1)
-    {
-	for(int cache_size(1_KB); cache_size < 64_KB; cache_size <<= 1)
-	{
+    for(int ways(1_way); ways < 16; ways <<= 1)    
+	for(int cache_size(1_KB); cache_size < 64_KB; cache_size <<= 1)	
 	    simulate(ways, cache_size, block_size, std::string(argv[1]));
-	}
-    }
-    
-
     return 0;
 }

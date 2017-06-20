@@ -1,151 +1,122 @@
 #include <iostream>
-#include <fstream>
-#include <map>
-#include <functional>
-#include <cmath>
-#include <vector>
-#include <climits>
+#include <stdio.h>
+#include <math.h>
 
-#define UNTIL(x) while(!(x))
+using namespace std;
 
-struct Cache
-{
-    std::vector<std::vector<int> > data;
-    std::vector<std::vector<int> > least_used;
-    Cache(int size, int block_size, int way): data      (size, std::vector<int>(way, -1)),
-    least_used(size, std::vector<int>(size, INT_MAX)){}
-    
-    bool exist(int index, int pos)
-    {
-        return (data.at(index).at(pos) != -1);
-    }
-    
-    Cache& add(int index, int tag)
-    {
-        int mini = INT_MAX;
-        int pos(0), small_pos(0);
-        for(int &i : least_used.at(index))
-        {
-            if(mini > i)
-            {
-                mini = i;
-                small_pos = pos;
-            }
-            pos++;
-        }
-        data[index][small_pos] = tag;
-	reset_timer(index, small_pos);
-        return *this;
-    }
-    
-    Cache& update_clock()
-    {
-        for(std::vector<int> & v : least_used)
-            for(int& i : v)
-                i--;
-         return *this;
-    }
-    
-    int& index_at(int index, int pos)
-    {
-        return data.at(index).at(pos);
-    }
-
-    void reset_timer(int index, int pos)
-    {
-        least_used.at(index).at(pos) = INT_MAX;
-    }
+struct cache_content{
+	bool v;
+	unsigned int  tag;
+    int last_time;
 };
 
-typedef unsigned long long int ulli;
-ulli operator"" _KB (ulli x) { return x * 1024; }
-ulli operator"" _B  (ulli x) { return x; }
-ulli operator"" _way(ulli x) { return x; }
+const int K=1024;
 
-double calculate_rate(int cache_size, int block_size, int way, std::istream &input)
+double log2( double n )
 {
-    std::function<double(double)> log2 = [](double n){return std::log(n) / std::log(2);};
-    int offset_bit = static_cast<int>(log2(block_size));
-    int index_bit  = static_cast<int>(log2(cache_size/block_size/way));
-    int line       = cache_size >> (offset_bit);
-    
-    Cache cache(line, block_size, way);
-    ulli addr, time_x(0), miss_time(0);
-    while(input >> std::hex >> addr)
-    {
-        unsigned int tag, index;
-        //    	std::cout << std::hex << addr << " \n";
-        index = (addr >> offset_bit) & (line - 1);
-        tag   =  addr >> (index_bit + offset_bit);
-        //	std::cout << std::hex << tag << " " << std::hex << index << "\n";
-        int pos(0);
-        bool hited = false;
-        while(pos < way && cache.exist(index, pos))
-        {
-            if(cache.index_at(index, pos) == tag)
-            {
-                // hit
-                hited = true;
-		cache.reset_timer(index, pos);
+    // log(n)/log(2) is log2.
+    return log( n ) / log(double(2));
+}
+
+
+void simulate(int associativity, int cache_size, int block_size, const char *file_name){
+	//miss rate
+	int number_lookup = 0;
+	int number_miss = 0;
+
+	unsigned int tag,index,x;
+
+	int offset_bit = (int) log2(block_size);
+	int index_bit = (int) log2(cache_size/block_size/associativity);
+	int line= 1 << index_bit;
+
+	cache_content **cache =new cache_content*[line];
+    for(int i=0;i<line;++i){
+        cache[i] = new cache_content[associativity];
+    }
+	//cout<<"cache line:"<<line<<endl;
+
+	for(int j=0;j<line;j++)
+        for(int k=0;k<associativity;++k)
+            cache[j][k].v=false;
+
+  	FILE *fp=fopen(file_name,"r");					//read file
+
+	while(fscanf(fp,"%x",&x)!=EOF){
+		//cout<<hex<<x<<" " <<dec;
+        //cout.flush();
+		index=(x>>offset_bit)&(line-1);
+		tag=x>>(index_bit+offset_bit);
+
+        bool hit = false;
+        for(int i=0;i<associativity;++i){
+            if( cache[index][i].v && cache[index][i].tag == tag ){ // hit
+                hit = true;
+                cache[index][i].last_time = number_lookup;
                 break;
             }
-            pos++;
         }
-        std::cout << "";
-        if(not hited)
-        {
-            if(pos != way)
-            {
-                cache.index_at(index, pos) = tag;
-                miss_time++;
+
+        if(!hit){ // miss
+            number_miss++;
+
+            int find_empty = false;
+            for(int i=0;i<associativity;++i){
+                if( cache[index][i].v == false ){
+                    find_empty = true;
+                    cache[index][i].v = true;
+                    cache[index][i].tag = tag;
+                    cache[index][i].last_time = number_lookup;
+                    break;
+                }
             }
-            else
-            {
-                cache.add(index, tag);
-		
-                miss_time++;
+            if(find_empty == false){
+                int min_time = 99999;
+                int index_min = -1;
+
+                for(int i=0;i<associativity;++i){
+                    if(min_time > cache[index][i].last_time){
+                        min_time = cache[index][i].last_time;
+                        index_min = i;
+                    }
+                }
+                cache[index][index_min].v = true;
+                cache[index][index_min].tag = tag;
+                cache[index][index_min].last_time = number_lookup;
             }
+
         }
-        
-        
-        cache.update_clock();
-        time_x++;
+		number_lookup++;
+	}
+	fclose(fp);
+
+	cout << endl;
+	cout << "file_name:\t" << file_name <<endl;
+    cout << "associativity:\t" << associativity <<endl;
+	cout << "cache_size:\t" << cache_size <<endl;
+	cout << "block_size:\t" << block_size <<endl;
+	cout << "number_lookup:\t" << number_lookup << endl;
+	cout << "number_miss:\t" << number_miss <<endl;
+	cout << "miss rate:\t" << (double)number_miss/(double)number_lookup <<endl;
+	cout <<endl;
+
+    for(int i=0;i<line;++i){
+        delete [] cache[i];
     }
-    return static_cast<double>(miss_time) / time_x;
+	delete [] cache;
 }
 
-int main(int argc, char *argv[])
-{
-    std::cout << ((argc < 2)? "read from stdin\n": "read from " + std::string(argv[1]) + "\n");
-    std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(1_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(1_KB, 64_B, 1_way, i);}());
-    std::cout << "\n";
-    std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(2_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(2_KB, 64_B, 1_way, i);}());
-    std::cout << "\n";
-    std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(4_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(4_KB, 64_B, 1_way, i);}());
-    std::cout << "\n";
-    std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(8_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(8_KB, 64_B, 1_way, i);}());
-    std::cout << "\n";
-    std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(16_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(16_KB, 64_B, 1_way, i);}());
-    std::cout << "\n";
-    std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(32_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(32_KB, 64_B, 1_way, i);}());
-    std::cout << "\n";
-    std::cout << "miss rate: ";
-    std::cout << ((argc < 2)? calculate_rate(64_KB, 64_B, 1_way, std::cin): [&]{ std::ifstream i(argv[1]); return
-        calculate_rate(64_KB, 64_B, 1_way, i);}());
-    std::cout << "\n";
-    return 0;
+int main(){
+	char file_name[2][11]={"LU.txt", "RADIX.txt"};
+	// Let us simulate 4KB cache with 16B blocks
+    int block_size = 64;
+    for(int i=0;i<2;++i){
+        for(int associativity=1;associativity < 16;associativity*=2){
+            for(int cache_size=1*K;cache_size<64*K;cache_size*=2){
+                simulate(associativity, cache_size, block_size, file_name[i]);
+            }
+        }
+    }
+
+	return 0;
 }
-
-

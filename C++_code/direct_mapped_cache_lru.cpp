@@ -32,7 +32,7 @@ ulli operator"" _B  (ulli x) { return x; }
 ulli operator"" _way(ulli x) { return x; }
 
 
-void simulate(int way, int cache_size, int block_size, std::string &&file_name)
+void simulate(int way, int cache_size, int block_size, std::string file_name)
 {
     std::function<double(double)> log2 = [](double n){return std::log(n) / std::log(2);};
     int offset_bit = static_cast<int>( log2(block_size) );
@@ -94,7 +94,6 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
 	time_x++;
     }
 
-    std::cout << std::endl;
     std::cout << "way:       \t"    << way  << std::endl;
     std::cout << "miss rate: \t"    << static_cast<double>(miss_time)/time_x << std::endl;
     std::cout << std::endl;
@@ -102,10 +101,14 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
 
 int main(int argc, char *argv[])
 {
+    std::vector<std::string> files{"./LU.txt", "./RADIX.txt"};
     int block_size = 64_B;
-    
-    for(int ways(1_way); ways < 16; ways <<= 1)    
-	for(int cache_size(1_KB); cache_size < 64_KB; cache_size <<= 1)	
-	    simulate(ways, cache_size, block_size, std::string(argv[1]));
+    for(std::string &file : files)
+    {
+	std::cout << "from: " << file << "\n";
+	for(int ways(1_way); ways < 16_way; ways <<= 1)    
+	    for(int cache_size(1_KB); cache_size < 64_KB; cache_size <<= 1)	
+		simulate(ways, cache_size, block_size, file);
+    }
     return 0;
 }

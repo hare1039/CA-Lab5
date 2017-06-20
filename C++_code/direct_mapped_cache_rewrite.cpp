@@ -49,12 +49,12 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
 	index = (addr >> offset_bit) & (line - 1);
         tag   =  addr >> (index_bit + offset_bit);
         bool hit = false;
-        for(int i(0); i < way; i++)
+	for(cache_cell &cell : cache.at(index))
 	{
-            if( cache[index][i].valid && cache[index][i].tag == tag )
-	    { // hit
+            if( cell.valid && cell.tag == tag )
+	    { 
                 hit = true;
-                cache[index][i].set_last_time(time_x);
+                cell.set_last_time(time_x);
                 break;
             }
         }
@@ -64,14 +64,14 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
             miss_time++;
 	    
             int empty = false;
-            for(int i(0); i < way; i++)
+	    for(cache_cell &cell : cache.at(index))
 	    {
-                if( cache[index][i].valid == false )
+                if( not cell.valid )
 		{
                     empty = true;
-                    cache[index][i].set_valid(true)
-			           .set_tag(tag)
-			           .set_last_time(time_x);
+                    cell.set_valid(true)
+			.set_tag(tag)
+			.set_last_time(time_x);
                     break;
                 }
             }
@@ -80,7 +80,7 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
                 int min_time  = INT_MAX;
                 int index_min = -1;
 
-                for(int i(0); i < way; i++)
+	        for(int i(0); i < way; i++)
 		{
                     if(min_time > cache[index][i].last_time)
 		    {
@@ -88,9 +88,9 @@ void simulate(int way, int cache_size, int block_size, std::string &&file_name)
                         index_min = i;
                     }
                 }
-		cache[index][index_min].set_valid(true)
-		                       .set_tag(tag)
-		                       .set_last_time(time_x);
+               cache[index][index_min].set_valid(true)
+                                      .set_tag(tag)
+                                      .set_last_time(time_x);
             }
 
         }
